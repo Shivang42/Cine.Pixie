@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lander</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Varta:wght@500&display=swap');
+        body{
+            /* background:radial-gradient(#ffffffc6 0%,#ffffff34 100%),radial-gradient(circle at 50%,#00000000 0%,black 100%),#272727ff; */
+            /* background-size:0vw 0vw,100vw 100vh,100vw 100vh; */
+            background-size:100%;overflow:none;height:100vw;width:100vw;
+            overflow:hidden;
+            background-blend-mode:hard-light;display:grid;
+            color:white;background-attachment: fixed;align-items:center;flex-direction: column;
+            place-items:center;animation:0.8s ease infinite alternate none;
+        }
+        #mask{
+            content:'w';display:block;outline:2px solid red;
+            height:100vw;aspect-ratio: 1;position:fixed;
+            top:0;left:0;backdrop-filter:blur(2px);
+            clip-path: circle(100vw at 20%);z-index:1;
+            /* mask: radial-gradient(circle at 50%, #0000 150px, rgba(0, 0, 0, 0.9) 160px); */
+            animation:4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes iris {
+            40%{
+                clip-path: circle(100vw at 50%);
+                backdrop-filter:blur(0px);
+                /* mask: radial-gradient(circle at 50%, #0000 800px, rgba(0, 0, 0, 0.9) 960px) */
+            }
+            
+            100%{
+                clip-path: circle(0px at 50%);
+                backdrop-filter:blur(0px);
+                /* mask: radial-gradient(circle at 50%, #0000 800px, rgba(0, 0, 0, 0.9) 960px) */
+            }
+        }
+        .bars{left:0;display:block;height:1vh;width:100vw;background: black;position:absolute;animation:1.8s ease forwards 1;z-index:2;}
+        .bars:nth-child(1){transform-origin: top;top:0px;}
+        .bars:nth-child(2){transform-origin: bottom;bottom:0px;}
+        @keyframes letterbox {
+            to{
+                transform:scaleY(9);
+            }
+        }
+        @keyframes fade {
+            from{
+                filter:blur(8px);
+                opacity:0;
+            }
+            to{
+                filter:blur(0px);
+                opacity:1;
+            }
+        }
+
+        #banner{z-index:3;height:50%;aspect-ratio: 1;display:flex;flex-direction: column;align-items: center;position:absolute;top:30%;}
+        #banner > span{display:flex;gap:2rem;color:white;}
+        #banner > span > button{cursor:pointer;font-family:Germania One;color:white;height:3em;aspect-ratio: 1.96;border-radius:1.3rem;background:#0000001d;border:none;}
+        #banner button:nth-child(1){background-color:#FE8100;}
+        #banner button:nth-child(2){background-color:#00e155;}
+        #banner > #icon{
+            height:100%;
+            object-fit: cover;border:none;
+            filter:invert(180%);transform:translate(2%,4%);
+        }
+    .sign{
+        transition:transform 1s ease;animation:0.5s 4.2s ease-out forwards;
+        margin-top:2rem;padding-right:3.3rem;display: block;opacity:0;
+        width:max(70vw,200px);aspect-ratio: 1.8;
+        text-align:center;box-shadow:0px 0px 0.3rem black;
+        z-index:100;place-self:center;
+    }
+	.signup{
+        /* background-blend-mode:multiply; */
+        background: linear-gradient(#d900538d 0%,#d90076c6 100%),url('https://images.unsplash.com/photo-1576614965955-4e015da6a29c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8Z2xhc3Nlc3x8fHx8fDE2OTk1MzIxMTI&ixlib=rb-4.0.3&q=80&w=1080') ,#ddddddb7;
+        background-size:50% 100%;background-position:0% 0%,0% 0%,50% 0%;
+        background-repeat: no-repeat;color:#d90053;
+	}
+    .signin{
+        /* background-blend-mode:multiply; */
+        background: linear-gradient(#ff74008d 0%,#ff9a00c6 100%),url('https://images.newscientist.com/wp-content/uploads/2014/11/dn26624-1_800.jpg?width=900') ,#ddd;
+        background-size:60% 100%,60% 100%,40% 100%;background-position:100% 0%,100% 0%,0% 0%;
+        background-repeat: no-repeat;color:#ff7400;
+	}
+    .sign > form{
+        position:absolute;display:flex;
+        justify-content: space-around;flex-direction: column;
+        font-family: DIN,Helvetica;
+        font-size:2.3rem;font-weight:600;width:max(33vw,96px);
+        aspect-ratio:0.9;align-items:center;
+    }
+
+    .signup > form{left:52%;}
+    .signin > form{right:57%;}
+    .sign span{
+        font-size:1.6rem;display:block;width:100%;
+    }
+    .sign input{
+        font-size:0.9rem;border-style:none;background:#00000010;transition:0.3s ease;
+    }
+    .sign .err{
+        font-size:0.6em;
+        width:100%;height:fit-content;background:#cd000062;
+        border-radius:2em;border:0.2rem solid white;
+        color:white;animation:2s ease-in-out forwards;
+        animation-name:none;display:none;
+    }
+    @keyframes flash{
+        15%{
+            opacity:1;
+        }
+        50%{
+            opacity:0.6;
+        }
+        100%{
+            opacity:0;
+        }
+    }
+    .sign button{
+        display:grid;place-content: center;
+        border-radius:1rem;cursor:pointer;font-weight:bolder;
+        height:50px;aspect-ratio:1.6;font-family:'varta';
+        padding:0.5em;font-size:1.2rem;
+    }
+    .signup button{
+        border:0.2rem solid #d90053;
+    }
+    .signin button{
+        border:0.2rem solid #ff7400;
+    }
+    .sign button:hover{
+        color:white;
+    }
+    .signin button:hover{
+        background:#ff7400;
+    }
+    .signup button:hover{
+        background:#d90053;
+    }
+    .vhs-filter {
+    overflow: hidden;left:0;top:0;
+    width:100vw;height:100vh;
+    z-index:-1;position:absolute;
+   }
+    
+    
+    @keyframes vibr{
+        0%{
+            transform: translate(2px, 2px);
+        }
+        30%{
+            transform: translate(3.5px, 2.5px);
+        }
+        70%{
+            transform: translate(0.5px, 2.5px);
+        }
+        100%{
+            transform: translate(2px, 2px);
+        }
+    }
+    @keyframes vibr2{
+        0%{
+            transform: translate(-1px, 2px);
+        }
+        30%{
+            transform: translate(2.5px, 2.5px);
+        }
+        70%{
+            transform: translate(-2.5px, 2.5px);
+        }
+        100%{
+            transform: translate(-1px, 2px);
+        }
+    }
+    
+    .vhs-filter__r {
+            filter: url('#r');
+            transform: translate(2px, 2px);
+            animation:vibr2 970ms infinite alternate;
+        }
+    .vhs-filter__g {
+            filter: url('#g');
+            transform: translate(1px, -1px);
+            animation:vibr 970ms infinite;
+        }
+    .vhs-filter__b {
+            filter: url('#b');
+        }
+    @keyframes fadevhs{
+        to{
+            filter:none;mix-blend-mode: normal;
+        }
+    }
+    .layer{transition:filter 1s ease-in;}
+    .vhs-filter__r,.vhs-filter__g{
+            left: 0;
+            mix-blend-mode: screen;
+            position: absolute;
+            top: 0;
+            transition: transform .4s;
+            z-index: 1;
+    }
+    .vhs-filter img { display: block; }
+
+    .backdrop {
+        left:0;top:0;display: grid;
+        z-index:0;place-items: start center;isolation: isolate;
+        width:100vw;height:100vh;position:absolute;
+    }
+
+    #bdrop {
+        width:100%;height:100%;
+    }
+    </style>
+     <script>
+        function alertErr(text){
+                Array.from(document.querySelectorAll(".err")).forEach((ele)=>{
+                    ele.innerHTML = text;
+                    ele.style.display='block';
+                    ele.style['animation-name'] = 'flash';
+                    setTimeout(()=>{ele.style['animation-name'] = 'none';ele.style.display='none';},5000);
+                });
+            }
+            
+         window.onload = async ()=>{
+            let op = window.location.href.split("?oper=").pop();
+            if(op=="signin"){
+                document.querySelector("button:nth-child(2)").setAttribute("id","rev");
+                document.querySelector("button:nth-child(1)").addEventListener("click",()=>{
+                    window.location.href = '?oper=signup';
+                })
+            }
+            else{
+                document.querySelector("button:nth-child(1)").setAttribute("id","rev");
+                document.querySelector("button:nth-child(2)").addEventListener("click",()=>{
+                    window.location.href = '?oper=signin';
+                })
+            }
+            const signin = (e)=>{
+                console.log(window.location.href);
+            }
+            const signup = (e)=>{
+            }
+            const image = document.querySelector(".js-vhs-filter");
+
+            VHSify(image);
+
+            function VHSify(image) {
+                if (
+                    !CSS.supports("mix-blend-mode", "screen") ||
+                    !CSS.supports("filter", "url()")
+                ) {
+                    return;
+                }
+                const container = document.createElement("div");
+                const images = RGBImages(image);
+
+                images.forEach(image => container.appendChild(image));
+                container.classList.add("vhs-filter");
+
+                image.replaceWith(container);
+            }
+
+            function RGBImages(image) {
+                const colors = ["r", "g", "b"];
+                const images = colors.map(color => {
+                    const img = image.cloneNode();
+                    img.classList.add(`layer`);
+                    img.classList.add(`vhs-filter__${color}`);
+                    return img;
+                });
+
+                return images;
+            }
+
+             document.querySelector("#rev").addEventListener("click",(e)=>{
+                $(".sign").css("animation-name","fade");
+                $("#mask").css("animation-name","iris");
+                $("#banner").css({'transform':"translateY(50vh)"});
+                $(".layer").each(function(id,el){
+                    $(this).css({'animation':"fadevhs 1.2s 2s forwards ease-in-out"});
+                });
+                $(".bars").each(function(id,el){
+                    $(this).css({'animation-name':"letterbox"});
+                });
+                $("#banner").css({'display':"none"});
+            }
+             );
+            const params = new URLSearchParams(window.location.search);
+            if(params.get('signup')=='true'){
+                $(".signin").css({'display':"none"});
+            }
+            else if(params.get('signin')=='true'){
+                $(".signup").css({'display':"none"});
+            }
+            // Array.from(document.querySelectorAll('*')).forEach((ele)=>ele.addEventListener("click",(e)=>{console.log(e.target);}))
+            if(document.querySelector("#signup")){
+            document.querySelector("#signup").addEventListener('submit',async (e)=>{
+                e.preventDefault();e.stopImmediatePropagation();
+                let req = await fetch('/auth?signup=true',{
+                    method:'POST',
+                    headers:{
+                        "Content-Type":'application/json'
+                    },
+                    body:JSON.stringify({
+                        userid:document.querySelector(`input[name='userid']`).value,
+                        name:document.querySelector(`input[name='name']`).value,
+                        mail:document.querySelector(`input[name='mail']`).value,
+                        passwd:document.querySelector(`input[name='passwd']`).value
+                    })
+                });
+                let jsonb = await req.json();
+                switch(jsonb.respcode){
+                    case 'interror':
+                    case 'dupkey':
+                        alertErr(jsonb.message);break;
+                    default:
+                        console.log('Nice');
+                        window.location.href = jsonb.redurl;
+                }
+            });
+        }
+        else{
+            // document.querySelector("#signin").addEventListener('submit',async (e)=>{
+            //     console.log(100);
+            //     e.preventDefault();e.stopImmediatePropagation();
+            //     let req = await fetch('/login',{
+            //         method:'POST',
+            //         headers:{
+            //             "Content-Type":'application/json'
+            //         },
+            //         body:JSON.stringify({
+            //             uid:document.querySelector(`input[name='uid']`).value,
+            //             pwd:document.querySelector(`input[name='pwd']`).value,
+            //         })
+            //     });
+            //     console.log(req.json());
+            // });
+        };
+    }
+    </script>
+</head>
+<body>
+    <div class="bars"></div>
+    <div class="bars"></div>
+    <div id="mask"></div>
+    <div class="backdrop">
+        <img id="bdrop" src =" https://source.unsplash.com/random/1920x1080?creepy" class="js-vhs-filter"/>
+        <% if(op=='signup' && op!='signin'){ %>
+            <div class='sign signup'>
+                <form id="signup" method="POST" action="/auth?signup=true">
+                    Sign-up
+                    <label class="err"></label>
+                    <span>User ID:</label><input type="text" name="userid"></span>
+                    <span>Name:<input type="text" name="name"></span>
+                    <span>Email:<input type="email" name="mail"></span>
+                    <span>Password:<input type="password" name="passwd"></span>
+                    <button id="sup" type="submit">Go!</button>
+                </form>
+            </div>
+        <% } %>
+        <% if(op!='signup' && op=='signin'){ %>
+        <div class='sign signin'>
+            <form id="signin" method="POST" action="/login">
+                Sign-in
+                <label class="err"></label>
+                <span>Name:</label><input type="text" name="username"></span>
+                <span>Password:<input type="password" name="password"></span>
+                <button id="sin" type="submit">Go!</button>
+            </form>
+        </div>
+        <% } %>
+    </div>
+    <svg>
+    <filter id="r"><feColorMatrix
+        type="matrix"
+        values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0 "/>
+    </filter>
+    <filter id="g"><feColorMatrix
+        type="matrix"
+        values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0 "/>
+    </filter>
+    <filter id="b"><feColorMatrix
+        type="matrix"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0 "/>
+    </filter>
+    </svg>
+    <div id="banner">
+        <object id="icon" data="reel.svg" type="image/svg+xml"></object>
+        <span><button>Join us</button>
+            <button>Signin</button></span>
+    </div>
+   
+</body>
+</html>

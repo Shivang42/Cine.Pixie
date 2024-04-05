@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lander</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <style>
+         @import url('https://fonts.googleapis.com/css2?family=Varta:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap');
+        *{
+            font-family:'Bree Serif',Germania One;
+            box-sizing: border-box;
+        }
+        @media screen and (max-width:555px){
+          .mainSection{flex-direction: column;}
+          .mainProfile{
+            width:100vw;
+          }
+          .sideProfile{
+            width:100vw;
+          }
+        }
+        @media screen and (min-width:555px){
+          .mainSection{flex-direction: row;}
+          .mainProfile{
+            width:max(100px,80%);
+          }
+          .sideProfile{
+            width:max(250px,20%);
+          }
+        }
+        body{
+            top:0;left:0;
+            overflow-x:hidden;display:flex;flex-direction: column;
+            background:radial-gradient(#ffffffc6 0%,#ffffff34 100%),radial-gradient(circle at 50%,#00000000 0%,black 100%),#272727ff;
+            background-size:0vw 0vw,100vw 100vh,100vw 100vh;background-blend-mode:hard-light;
+            color:white;background-attachment: fixed;
+            align-items:start;animation:0.8s ease infinite alternate panning;
+        }
+      .genres::-webkit-scrollbar{
+        display:none;
+      }
+      .tabs{
+        display:flex;justify-content: space-around;
+        width:50%;
+      }
+      .tabs > a{
+        font-size:2rem;color:white;font-family: Germania One;
+        text-decoration: none;
+      }
+      .results{
+        width:100%;align-items: center;
+        display:flex;flex-direction: column;
+        padding:1rem;gap:max(15px,5%);
+      }
+      .results > .resultCard{
+        width:80%;align-items: center;border-style:none;
+        display:flex;justify-content: start;
+        gap:max(2%,15px);border-radius: 1rem;
+        flex-wrap: nowrap;background: #000000a2;
+        /* outline:2px solid orange; */
+        box-shadow: 2px 2px 6px #d2d2d2;
+      }
+      .resultCard object{
+        width:92px;text-align: center;
+      }
+      .resultCard > div{
+        padding-top: 1rem;padding-bottom: 1rem;
+        display:flex;justify-content: start;
+        gap:0;flex-direction: column;
+        /* outline:2px solid green; */
+      }
+      .resultCard .desc{
+        display: -webkit-box;
+        text-overflow: ellipsis;
+        overflow:hidden;-webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+      }
+      .resultCard h3{
+        color:silver;
+      }
+      .resultCard > span *{
+        margin-left:1rem;
+      }
+      .results a{
+        text-decoration-line: none;color:white;
+        font-size: 1.2rem;padding-left:0.5rem;padding-right: 0.5rem;
+      }
+      span > .act{color:black;}
+      span > a:not(.act){
+        color:#ddd;border:2px solid white;
+      }
+      .act{
+        background:white;border:2px solid white;
+        font-size: 1.2rem;color:#272727;pointer-events: none;
+      }
+      h3,h2{
+        margin:0;
+      }
+    </style>
+    <link rel="stylesheet" href="../header.css">
+     <script>
+        function alertErr(text){
+                Array.from(document.querySelectorAll(".err")).forEach((ele)=>{
+                    ele.innerHTML = text;
+                    ele.style.display='block';
+                    ele.style['animation-name'] = 'flash';
+                    setTimeout(()=>{ele.style['animation-name'] = 'none';ele.style.display='none';},5000);
+                });
+            }
+         window.onload = ()=>{
+          $("#sfield").on("keypress",function(e){
+              if(e.keyCode===13){
+                window.location.href = `../../search?terms=${encodeURI((this).value)}`;
+              }
+            });
+          }
+    </script>
+</head>
+<body>
+  <%- include ('header.ejs') %>
+    <div class="results">
+        <%results.forEach(function (result){%>
+            <div class="resultCard">
+                <object id="fpic" type="image/jpeg" data=<%="https://image.tmdb.org/t/p/w92"+result['poster_path'] %>>Post note available</object>
+                <div>
+                    <h2><a href="../films/<%=result['id']%>"><%=result['title']%></a></h2>
+                    <h3><%=result['release_date']%></h3>
+                    <p class="desc"><%=result['overview']%></p>
+                </div>
+            </div>
+            <%})%>
+            <span>
+            <% for(var i = totalpages;i>0;i--){%>
+                <a href="<%=url%>&page=<%=totalpages-i+1%>" class="<%if((!curr&&i==totalpages)|| curr==totalpages-i+1){%>act<%}%>"><%=totalpages-i+1%></a>
+            <%}%>
+            </span>
+    </div>
+
+</body>
+</html>

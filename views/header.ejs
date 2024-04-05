@@ -1,0 +1,59 @@
+<div class="bars">
+    <img id="ppic" type="image/jpeg" src=<%=user.profilePic %>><a><%=user.userName %></p>
+    <div class="tabs">
+        <a href="../../dashboard">Explore</a><a href="../user/profile">Profile</a>
+    </div>
+    <div class="ss">
+        <input name="search" id="sfield">
+        <div class="filmMenu"><label>Search for films ....</label></div>
+        <script>
+            window.onload=()=>{
+                const params = new URLSearchParams(window.location.search);
+                $("#sfield").on("focus",function(e){
+                    $(".filmMenu").css('opacity',1);
+                });
+                $("#sfield").on("focusout",function(e){
+                    $(".filmMenu").css('opacity',0);
+                });
+                $("#sfield").on("keypress",function(e){
+                    if(e.keyCode===13){
+                    window.location.href = `../../search?terms=${encodeURI((this).value)}`;
+                }
+                });
+                $("#sfield").on("input",function(e){
+
+                        let state = new XMLHttpRequest(); 
+                        console.log(123);
+                        state.onreadystatechange = function () { 
+                            if (this.status == 200) {
+                                let resp = JSON.parse(this.response);
+                                document.querySelector(".filmMenu").innerHTML = '';
+                                if(resp.users.length===0){
+                                    document.querySelector(".filmMenu").innerHTML = '<label>No results found</label>';
+                                }
+                                else{
+                                    setTimeout(()=>{
+                                    resp.users.forEach((user)=>{
+                                        let newItem = document.createElement("a");
+                                        newItem.setAttribute("href",`../films/${user.id}`)
+                                        newItem.innerHTML+=user.title;
+                                        document.querySelector(".filmMenu").appendChild(newItem);
+                                    });
+                                    },1000);
+                                }
+                            
+                        } 
+                    }
+                        let url = `/user/filmsearch?terms=`+encodeURIComponent(document.querySelector("#sfield").value);
+                        state.open("GET", url,true); 
+                        state.send(); 
+                    }); 
+            }
+        </script>
+        <div id="icon">
+            <object data = "https://api.iconify.design/material-symbols-light:search.svg?color=%23ffffff">
+            </object>
+        </div>
+        
+    </div>  
+</div>

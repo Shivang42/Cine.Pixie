@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lander</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <style>
+         @import url('https://fonts.googleapis.com/css2?family=Varta:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap');
+        *{
+            font-family:'Bree Serif',Germania One;
+            box-sizing: border-box;
+        }
+        @media screen and (max-width:555px){
+          .mainSection{flex-direction: column;}
+          .mainProfile{
+            width:100vw;
+          }
+          .sideProfile{
+            width:100vw;
+          }
+        }
+        @media screen and (min-width:555px){
+          .mainSection{flex-direction: row;}
+          .mainProfile{
+            width:max(100px,80%);
+          }
+          .sideProfile{
+            width:max(250px,20%);
+          }
+        }
+        body{
+            top:0;left:0;
+            overflow-x:hidden;display:flex;flex-direction: column;
+            background:radial-gradient(#ffffffc6 0%,#ffffff34 100%),radial-gradient(circle at 50%,#00000000 0%,black 100%),#272727ff;
+            background-size:0vw 0vw,100vw 100vh,100vw 100vh;background-blend-mode:hard-light;
+            color:white;background-attachment: fixed;
+            align-items:start;animation:0.8s ease infinite alternate panning;
+        }
+      .genres::-webkit-scrollbar{
+        display:none;
+      }
+      .tabs{
+        display:flex;justify-content: space-around;
+        width:50%;
+      }
+      .tabs > a{
+        font-size:2rem;color:white;font-family: Germania One;
+        text-decoration: none;
+      }
+      .profile{
+        width:100vw;height:90vh;
+        display:grid;place-items: center;
+      }
+      .profile > #main{
+        height:80%;aspect-ratio: 1.96; background: #ffffff04;
+        display:grid;grid-template-columns:repeat(3,3fr);
+        grid-template-columns:repeat(2,3fr);
+        grid-template-rows:1fr,9fr;row-gap: 0;
+        border-top-left-radius: 2rem;border-top-right-radius: 2rem;
+        border-bottom:1rem double white;
+      }
+      ul{border-bottom:0.6rem double #272727;font-family:Helvetica;font-size:1.6rem;display:flex;justify-content: space-between;grid-column: 1 / span 2;grid-row: 1 / 1;}
+      ul > nav{display:grid;column-span: 3;width:33%;place-items: center;cursor:pointer;background:white;color:black;aspect-ratio:5;}
+      ul > nav:nth-child(1):hover,ul > nav:nth-child(1).active{background:teal;color:white;box-shadow: inset 0px 0px 10px #000000;filter: drop-shadow(0px 0px 10px black);}
+      ul > nav:nth-child(3):hover,ul > nav:nth-child(3).active{background:#ee7600;color:white;box-shadow: inset 0px 0px 10px #000000;filter: drop-shadow(0px 0px 10px black);}
+      ul > nav:nth-child(2):hover,ul > nav:nth-child(2).active{background:#ddd;color:white;box-shadow: inset 0px 0px 10px #000000;filter: drop-shadow(0px 0px 10px black);}
+      ul > nav:nth-child(1){border-top-left-radius:2.3rem;}
+      ul > nav:nth-child(3){border-top-right-radius:2.3rem;}
+      .board{
+        grid-row: 2 / span 8;grid-column: 1 / span 2;
+        display:grid;border-radius:0.5rem;flex-direction: column;
+        grid-template-columns: repeat(2,1fr);margin:0.5rem 2rem;
+        flex-wrap: wrap;align-items: start;
+        font-size:max(1.2rem,5%);
+      }
+      .profileCard{
+        background:#272727;display:none;width:100%;
+        height:100%;
+      }
+      .contentBox{
+        display:grid;gap:2rem;
+        grid-template-columns: repeat(2,1fr);
+        grid-template-rows: repeat(3,1fr);
+      }
+      .contentBox > aside{
+        display:flex;flex-direction: column;text-align: center;
+        justify-content: center;font-size:max(1.2rem,5%);align-items: center;
+      }
+      aside > label:nth-child(1){
+        text-decoration: underline;color:wheat;
+      }
+      .following{
+        background:#27272700;display:grid;grid-template-rows: 1fr,4fr;
+        grid-template-columns: 3fr,1fr;
+      }
+      .follow{border-radius:1rem;border-style: none;background: orange;}
+      #followinglist{
+        display:flex;flex-direction: column;align-items: center;
+        color:wheat;font-family:Helvetica, sans-serif;
+        filter:drop-shadow(0px 0px 8px black);gap:0.8rem;
+        grid-column: 1 / span 2;
+      }
+      .followerslist > label,#followinglist > label{
+        border-bottom: 2px solid white;width:70%;
+        text-align:center;
+      }
+      #searchfollowing{
+        grid-row: 1 / 1;grid-column: 1 / 1;background:#00000034;
+        height:50px;width:80%;color:white;font-size:1.5rem;
+        text-align: center;
+      }
+      .searchlist{
+        position:absolute;width:60%;
+        transform: translate(2.2rem,0.5rem);display:block;
+      }
+      .searchlist label{
+        height:3rem;background: white;border:3px solid white;
+        display:flex;flex-direction: row;justify-content: center;
+        align-items: center;color:black;
+      }
+      .searchlist label:hover{background-color: teal;color:white;}
+      #search{grid-column:2 / span 1;grid-row: 1 / span 1;
+        background: teal;border-style:none;color:white;
+        width:20%;outline:2px solid white;
+      }
+      .searchlist button{
+        height:2rem;background: orange;
+      }
+      .followers{display:none;
+      }
+      .followers > .followerslist{
+        display:flex;flex-direction: column;align-items: center;
+        color:wheat;font-family:Helvetica, sans-serif;
+        filter:drop-shadow(0px 0px 8px black);gap:0.8rem;
+      }
+
+      .followers,.following,.profileCard{
+        grid-column: inherit;grid-row: inherit;
+      }
+    </style>
+    <link rel="stylesheet" href="../header.css">
+     <script>
+        function alertErr(text){
+                Array.from(document.querySelectorAll(".err")).forEach((ele)=>{
+                    ele.innerHTML = text;
+                    ele.style.display='block';
+                    ele.style['animation-name'] = 'flash';
+                    setTimeout(()=>{ele.style['animation-name'] = 'none';ele.style.display='none';},5000);
+                });
+          }
+          function flip(pno){
+                Array.from(document.querySelectorAll(".board > *")).forEach((ele,i)=>{
+                    if(i===pno){
+                      ele.style.display='block';
+                      Array.from(document.querySelectorAll("nav"))[i].className = "active";
+                    }
+                    else{
+                      ele.style.display='none';
+                      Array.from(document.querySelectorAll("nav"))[i].className = "";
+                    }
+                });
+          }
+          function addFriend(e){
+              let fname = e.parentElement.getAttribute("data-name");
+              let fid = e.parentElement.getAttribute("data-id");
+              var state = new XMLHttpRequest(); 
+                console.log(123);
+                state.onload = function () { 
+                    let resp = JSON.parse(this.response);
+                    if(resp.mess==='successful'){
+                      window.location.href = window.location.href;
+                    }else if("preexists"){
+                      window.alert("That user is already your follower");
+                    }else{
+                      window.alert("Server error, try again");
+                    }
+                } 
+                state.open("GET", `/user/follow?id=${fid}&name${name}`, true); 
+                state.send(); 
+          }
+         window.onload = ()=>{
+          $("#sfield").on("keypress",function(e){
+              if(e.keyCode===13){
+                window.location.href = `../../search?terms=${encodeURI((this).value)}`;
+              }
+            });
+            document.querySelector("#searchfollowing").addEventListener("input",(e)=>{
+                var state = new XMLHttpRequest(); 
+                console.log(e.target.innerHTML);
+                if(e.target.value!==''){
+                  document.querySelector("#followinglist").style.display = "none";
+                }else{
+                  document.querySelector("#followinglist").style.display = "flex";
+                }
+                console.log(123);
+                state.onload = function () { 
+                    let resp = JSON.parse(this.response);
+                    document.querySelector(".searchlist").innerHTML = '';
+                    resp.users.forEach((user)=>{
+                        let newItem = document.createElement("label");
+                        newItem.setAttribute("data-name",user.uname);newItem.setAttribute("data-id",user.uid);
+                        newItem.innerHTML+=user.uname;newItem.innerHTML+=user.uid;
+                        newItem.innerHTML+='<button class="follow" onclick="addFriend(this)">Follow</button>';
+                        document.querySelector(".searchlist").appendChild(newItem);
+                    })
+                } 
+                state.open("GET", `/user/search?terms=${document.querySelector("#searchfollowing").value}`, true); 
+                console.log(document.querySelector("#searchfollowing").value);
+                state.send(); 
+            });
+          }
+    </script>
+</head>
+<body>
+  <%- include ('header.ejs') %>
+    <div class="profile">
+      <div id="main">
+      <ul><nav onclick="flip(0)"><%=user.userName%></nav>
+        <nav onclick="flip(1)">Followers</nav>
+        <nav onclick="flip(2)">Following</nav></ul>
+        <div class="board">
+        <div class="profileCard">
+            <div class="contentBox">
+                <aside><label>ID:</label><label><%=user.userID%></label></aside>
+                <aside><label>Username:</label><label><%=user.userName%></label></aside>
+                <aside><label>Email-id</label><label><%=user.email%></label></aside>
+                <aside><label>Movies watched(this month):</label><label><%var ii = 0;for(ii = 0;ii < user.reviews.length;ii++){ii++}%><%=ii%></label></aside>
+                <aside><label>Followers:</label><label><%ii = 0;for(ii = 0;ii < followers.length;ii++){ii++}%><%=ii%></label></aside>
+                <aside><label>Following:</label><label><%ii = 0;for(ii = 0;ii < following.length;ii++){ii++}%><%=ii%></label></aside>
+              </div>
+        </div>
+        <div class="following" >
+            <ul><input type="text" id="searchfollowing"><button type="button" id="search">Search</button></ul>
+            <div class="searchlist">
+                  
+                </div>
+                <div id="followinglist">
+                  <%following.forEach(function(followee){%>
+                    <label><%=followee%></label>
+                  <%})%>
+                </div>
+            </div>
+            <div class="followers" style="display:none;">
+                  <div class="followerslist">
+                    <%followers.forEach(function(follower){%>
+                      <label><%=follower%></label>
+                    <%})%>
+                  </div>
+              </div>
+            </div>
+          </div>
+    </div>
+
+</body>
+</html>

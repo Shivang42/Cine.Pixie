@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lander</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Varta:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap');
+        *{
+            font-family:'Bree Serif',Germania One;
+            box-sizing: border-box;
+        }
+        @media screen and (max-width:555px){
+          .mainSection{flex-direction: column;}
+          .mainProfile{
+            width:100vw;
+          }
+          .sideProfile{
+            width:100vw;
+          }
+        }
+        @media screen and (min-width:555px){
+          .mainSection{flex-direction: row;}
+          .mainProfile{
+            width:max(100px,80%);
+          }
+          .sideProfile{
+            width:max(250px,20%);
+          }
+        }
+        #body{
+            top:0;left:0;
+            overflow-x:hidden;display:flex;flex-direction: column;
+            background:radial-gradient(#ffffffc6 0%,#ffffff34 100%),radial-gradient(circle at 50%,#00000000 0%,black 100%),#272727ff;
+            background-size:0vw 0vw,100vw 100vh,100vw 100vh;background-blend-mode:hard-light;
+            color:white;background-attachment: fixed;
+            align-items:start;animation:0.8s ease infinite alternate panning;
+        }
+        #body,#body > *{
+          width:100vw;
+        }
+      .genres{
+        position:relative;top:35%;align-items: center;justify-content: center;
+        height:40vh;width:120vw;display:flex;background: #15181d43;border-radius: 0.45rem;
+        overflow-x:scroll;gap:max(50px,6vw);font-size:1.4rem;
+        flex-wrap: wrap;padding:1em;
+      }
+      .genres::-webkit-scrollbar{
+        display:none;
+      }
+      
+      .mainSection{
+        display:flex;gap:0px;
+        top:max(80px,10vh);left:0%;overflow-y: scroll;
+        height: fit-content;width:100vw;
+      }
+      .footerSection{
+        width:100vw;padding:1.42rem;
+        font-size:1.9rem;
+      }
+      .footerSection *{
+        margin:0.5rem;
+      }
+      .footerSection .castCrew{
+        overflow-y: hidden;height: 10em;
+        width:76.7%;
+        display:flex;gap:max(25px,3%);
+        flex-wrap: nowrap;overflow:scroll;
+      }
+      .footerSection > .castCrew::after{
+        content:'1';background:green;
+      }
+      .footerSection > .castCrew::-webkit-scrollbar{
+        background-color: #ddd;
+      }
+      .footerSection > .castCrew::-webkit-scrollbar-thumb{
+        background-color:   #dbdbdb;border-radius: 1rem;
+      }
+    
+      .castCard{
+        display:flex;flex-direction: column;align-items:stretch;
+        font-size:1.05rem;box-shadow:0px 0px 1rem #000000f3;
+        width:fit-content;color:floralwhite;height:90%;
+        border-top-left-radius: 1em;border-top-right-radius: 1em;
+      }
+      .castCard > img{
+        width:145px;
+        clip-path: inset(0% 0% 15% 0%);margin:0;
+        border-top-left-radius: 1em;border-top-right-radius: 1em;
+      }
+      .castCard > p{
+        display:inline-block;
+        overflow:hidden;top:-39px;
+        text-align: center;margin-top: -1.45rem;
+      }
+      .reviewSection{
+        display:flex;flex-direction: column;
+      }
+      .reviewSection > div{
+        display:flex;gap:max(5%,5em);place-items:start;
+        justify-content:flex-start;margin-left: 1.6rem;
+        overflow-y: scroll;align-items: center;
+        width: 70%;height:fit-content;
+      }
+      .reviewSection form{
+        display:flex;
+      }
+      .reviewSection textarea{
+        background: grey;color:white;
+        content:'write your review here...';
+      }
+      .reviewSection ul{
+        display:flex;width:100px;list-style-type: none;
+        justify-content: space-between;
+      }
+      #postReview{
+        font-size:1.5rem;background:green;
+        border-style:none;color:#ddd;
+        cursor:pointer;
+      }
+      *::-webkit-scrollbar{
+        background:transparent;
+      }
+      *::-webkit-slider-thumb{
+        background:white;border-radius: 2rem;
+      }
+      .sideProfile{
+        display:flex;flex-direction: column;
+        justify-content: start;aspect-ratio:0.5;align-items: center;
+        padding:1rem 3rem 1rem 3rem;margin:0% 0%;z-index:2;
+        background-color: var(--magenta-light);text-align: center;
+        font-size:min(200%,3.4em);color:white;overflow-x:hidden;
+        box-shadow:0px 0px 25px#000;font-size:1rem;
+        background:#000000f4;
+      }
+      .sideProfile > #fpic{
+        width:120%;aspect-ratio: 0.75;box-shadow:2px 2px 10px #272727;
+      }
+      .sideProfile > #fgenres{
+        width:100%;align-items: baseline;
+        display:flex;justify-content: space-around;
+      }
+      .mainProfile > #ftitle{
+        font-size:2.5em;font-family:DIN;display:flex;
+      }
+      .mainProfile h3{
+        color:#ddd;font-size:1.3rem;
+      }
+      .mainProfile{
+        padding-left:1rem;padding-right:1rem;
+        background-size:100% 100%;background:radial-gradient(#000000b3, black 100%) 90%;
+      }
+      .mainProfile > #topcreds{
+        display:grid;column-count: 2;grid-template-columns: repeat(2,1fr);
+        width:max(250px,60%);
+      }
+      #topcreds > p{
+        display:flex;flex-direction: column;
+      }
+      .mainProfile > label{
+        font-family: DIN,Arial, Helvetica, sans-serif;
+      }
+      .mainProfile > #fdesc{
+        color:#909090;width:90%;
+      }
+      
+.wrapper {
+  position: relative;
+  width: 80px;color:white;
+  height: 80px;z-index:2;
+}
+.perc {
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.25rem;top: 50%; left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+svg {
+  transform: rotate(-90deg);
+}
+#bg-circle, #fg-circle {
+  fill: none;
+  stroke: #272727;
+  stroke-width: 20px;
+}
+
+#fg-circle {
+  stroke: teal;
+  stroke-dasharray: 502;
+  stroke-dashoffset: 500;
+  animation: dash 1s linear forwards;
+}
+      .services{
+        display:inline-flex;max-width: 500px;gap:2rem;
+        width:30vw;justify-content: space-between;
+        align-items: bottom;
+        flex-wrap: wrap;
+      }
+      .services label{position:relative;}
+      .services object{
+        border-radius:50%;width:2.4rem;
+      }
+      .reviewSection{
+        width:max(80vw);display:flex;
+        justify-content: space-around;align-items: start;
+      }
+      .reviewSection > div{
+        width:100%;display:flex;align-items:center;
+      }
+      .reviews > *{
+        border-top:0.3em solid white;border-bottom:0.3em solid white;
+      }
+      .reviewSection h3{
+        width:125px;
+      }
+      .labelReview{
+        width:45%;
+      }
+      .reviewSection #stars{
+        width:300px;aspect-ratio: 5;
+        display:flex;
+      }
+      .reviewSection #review{
+        flex-shrink:1;
+      }
+      .reviews{
+        display:flex;flex-direction: column;
+        gap:3rem;width:80%;margin-top: 1.4rem;
+        margin-bottom: 2rem;
+      }
+      .reviews > .oreview{
+        display:flex;justify-content: space-around;
+        padding:2rem;gap:1rem;
+      }
+
+    </style>
+    <link rel="stylesheet" href="../../header.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+     <script>
+         window.onload = ()=>{
+            const params = new URLSearchParams(window.location.search);
+
+            $("#sfield").on("keypress",function(e){
+              if(e.keyCode===13){
+                window.location.href = `../../search?terms=${encodeURI((this).value)}`;
+              }
+            });
+            let stars = Array.from(document.querySelectorAll("#stars > img"));
+            $("#stars").on("mouseleave",function (e){
+              let nstars = 0;
+              console.log(10);
+              Array.from(document.querySelectorAll("#stars > img")).forEach((star)=>{
+                if(star.getAttribute("data-state")=="0")
+                  {star.src="../../star.svg";nstars+=0}
+                else if(star.getAttribute("data-state")=="0.5")
+                  {star.src="../../starhalf.svg";nstars+=1;}
+                else if(star.getAttribute("data-state")=="1")
+                  {star.src="../../starfill.svg";nstars+=2;}
+              });
+              $("#nstars").attr('value',nstars.toString());
+            });
+            stars.forEach((star,i)=>{
+              star.addEventListener("mouseover",(e)=>{
+                console.log(200);
+                console.log(stars.slice(0,i));
+                stars.slice(0,i).forEach((prevstar)=>{prevstar.src='../../starfill.svg'});
+                stars.slice(i+1,i+6).forEach((prevstar)=>{prevstar.src='../../star.svg'});
+                if((e.offsetX/e.target.offsetWidth)>=0.9){
+                  e.target.src = "../../starfill.svg";
+                }
+                else if((e.offsetX/e.target.offsetWidth)>=0.5){
+                  e.target.src = "../../starhalf.svg";
+                }
+                else{
+                  e.target.src = "../../star.svg";
+                }
+              });
+              star.addEventListener("click",(e)=>{
+                stars.slice(0,i).forEach((prevstar)=>{prevstar.setAttribute('data-state',"1");});
+                stars.slice(i+1,i+6).forEach((prevstar)=>{prevstar.setAttribute('data-state',"0");});
+                if((e.offsetX/e.target.offsetWidth)>=0.9){
+                  e.target['data-state'] = "1";
+                }
+                else if((e.offsetX/e.target.offsetWidth)>=0.5){
+                  e.target['data-state'] = "0.5";
+                }
+                else{
+                  e.target['data-state'] = "0";
+                }
+              });
+            });
+            // document.querySelector("form[name='review']").addEventListener("submit",(e)=>{
+            //   // e.preventDefault();e.stopImmediatePropagation();
+            // })
+            
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body id="body">
+  <%- include ('header.ejs') %>
+  <% if(film && film.backdrop_path){ %>
+    <div class="mainSection" style="background:url('https://image.tmdb.org/t/p/original<%=film.backdrop_path%>');">
+      <%}else{ %>
+        <div class="mainSection">
+          <%}%>
+      <div class="sideProfile">
+        <%if(film){%>
+        <object id="fpic" type="image/jpeg" data=<%="https://image.tmdb.org/t/p/w400"+film['poster_path'] %>></object>
+        <%}else{%>
+          <object id="fpic" data=<%="reel.svg"%>></object>
+          <%}%>
+          <%if(film){%>
+        <p id="flang"><u>Language</u>: <%film.spoken_languages.forEach(function(data){%><%=data.english_name+" "%><%})%></p>
+        <%}else{%><%"Language not avaiable"}%>
+        <%if(film){%>
+        <p><u>Release Date</u> : <%=film.release_date %></p>
+        <%}else{%><%"Release date not avaiable"}%>
+        <%if(film){%>
+        <p id="fgenres"><%film.genres.forEach(function(data){%><i><object type="image/png" data="../genre<%=data.id%>.png"></object></i><%})%></p>
+        <%}else{%><%"Genres not avaiable"}%>
+        <button type="button" class="btn btn-primary" data-target="#trailermodal" data-toggle="modal">Watch Trailer</button>
+      </div>
+      <article class="mainProfile">
+        <%if(film){%>
+        <div id="ftitle"><%=film.title %><span class="score" style="display:flex"><%}else{%><%"Title not available"}%>
+          <%var rate = 5;%>
+          <%if(film){%>
+        <%var stars = film['vote_average']*10;%><%}else{%><%"Rating unavailable"}%>
+        <div class="rating">
+          <div class="wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+              <title>elipse</title>
+              <circle id="bg-circle" cx="90" cy="90" r="80" />
+              <circle style="stroke-dashoffset:<%=Math.round(500*(1-stars/100))%>;" id="fg-circle" cx="90" cy="90" r="80" />
+            </svg>
+            <%if(stars){%>
+            <span class="perc"><%=stars.toString().slice(0,4)%>%</span>
+            <%}else{%><%}%>
+          </div>
+          </div>
+        </span></div>
+        
+        <h2 style="font-weight: 700;">Overview</h2>
+        <%if(film){%>
+        <p id="fdesc"><%=film.overview %></p>
+        <%}%>
+          <div id="topcreds">
+          <div>
+          <h2 style="font-family: DIN,Helvetica,Consolas;">Director(s): </h2>
+          <%if(cast){%>
+          <h3><%= cast.director.join(',') %></h3>
+          </div>
+            <div>
+              <h2 style="font-family: DIN,Helvetica,Consolas;">Writer(s): </h2>
+              <h3><%= cast.writer.join(',') %></h3>
+            </div>
+            <%}%>
+              </div>
+            
+        <span>
+        <div class="services">
+          <%if(services){%>
+          <% if(services.rent && services.rent.length>0&&services.rent.length>0){ %>
+            <h2>Stream now: </h2>&nbsp&nbsp
+            <%services.rent.forEach(function(service){%>
+            <i><object type="image/png" data="https://image.tmdb.org/t/p/w92<%=service.logo_path%>"></object></i>
+            <%})%>
+          <%}else{%>
+            <label> No streaming services serve this films currently ... </label>
+            <%}%>
+            <%}%>
+          </div>
+        </span>
+      </article>
+    </div>
+    <div class="footerSection">
+      <div class = "crewSection">
+        <label>Top Billed Cast</label>
+      <div class="castCrew">
+        <% if(cast.cast && cast.cast.length>0){ %>
+          <%cast.cast.forEach(function(member){%>
+            <div class="castCard">
+            <img src="https://image.tmdb.org/t/p/w185<%=member.profile_path%>" style="border-style:none;" ></img>
+            <p><%=member.name%><br><font color="#ddd"><%=member.character%></font></p>
+          </div>
+            <%})%>
+          <%}else{%>
+            <label> No crew available ... </label>
+            <%}%>
+      </div>
+    </div>
+    </div>
+    <div class="reviewSection">
+      <div><div>
+      <div id="stars">
+        <h3>Your Rating: </h3>
+        <%if(!review.review || review.stars==0){%>
+        <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+        <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+        <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+        <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+        <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+        <%}else{%>
+          <%var rat = 5;%>
+          <%var stars = review.stars;%>
+          <%while(rat>0){%>
+            <%if(stars>1){%>
+              <img height="30px" width="30px" data-state="1" src="../../starfill.svg"></img>
+            <%}else if(stars>0){%>
+              <img height="30px" width="30px" data-state="0.5" src="../../starhalf.svg"></img>
+            <%}else{%>
+              <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+              <%}%>
+            <%rat--;%>
+            <%stars-=2;%>
+          <%}%>
+        <%}%>
+      </div>
+      <h5 style="color:wheat;"><%=review.postDate%></h5>
+    </div>
+      <form id="#reviewform" name="review" method="POST" action="<%if(isPost){%>../../user/update<%}else{%>../../user/post<%}%>">
+        <textarea name="myReview" id="review" cols="40" rows="6"><%=review.review%></textarea>
+        <input id="nstars" name="stars" type="hidden" value="1">
+        <input name="fid" type="hidden" value="<%=film.id%>">
+      </form>
+      <button id="postReview" form="#reviewform" type="submit"><%if(isPost){%>Update<%}else{%>Post<%}%></button>
+    </div>
+      <article class="reviews">
+        <%if(otherReviews || otherReviews.length>0){%>
+        <%otherReviews.forEach(function(review){%>
+          <div class="oreview">
+            <%var rate = 5;%>
+            <%var stars = review.stars;%>
+            <div class="labelReview">
+              <h3><%=review.reviewerName%></h3>
+              <h5 style="color:wheat;"><%=review.postDate%></h5>
+            <%while(rate>0){%>
+              <%if(stars>1){%>
+                <img height="30px" width="30px" data-state="1" src="../../starfill.svg"></img>
+                <%}else if(stars>0){%>
+                  <img height="30px" width="30px" data-state="0.5" src="../../starhalf.svg"></img>
+                  <%}else{%>
+                    <img height="30px" width="30px" data-state="0" src="../../star.svg"></img>
+                    <%}%>
+                    <%rate--;%>
+                    <%stars-=2;%>
+                    <%}%>
+                  </div>
+            <textarea style="background: #00000000;border-style:none;color:#ffffff63;" name="myReview" id="review" cols="60" rows="5" readonly><%=review.review%></textarea>
+        </div>
+          <%})}%>
+      </article>
+    </div>
+      <div class="modal fade" id="trailermodal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content" >
+            <div class="modal-header" style="background:#000000;">
+              <h5 class="modal-title" >Watch <%=film.title%> trailer</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" style="background:#272727;display:flex;flex-direction: column;height:fit-content;align-items: center;">
+              <% let i = 0;if(trailers && trailers.length>0&&trailers.length>0){ %>
+                <%trailers.forEach(function(trailer){if(i==0){%>
+                  <iframe src="https://www.youtube.com/embed/<%=trailer.key%>" width="500" height="330" style="border-style:none;" allowfullscreen></iframe>
+                  <%}i++;})%>
+                <%}else{%>
+                  <h2> No trailers are currently available ... </h2>
+                  <%}%>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+</body>
+</html>
